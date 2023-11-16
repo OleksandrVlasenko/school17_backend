@@ -5,7 +5,7 @@ import "dotenv/config";
 import swaggerUi from "swagger-ui-express";
 import swaggerDocument from "./swagger.json" assert { type: "json" };
 
-// import { router as AuthRouter } from "./routes/api/auth-router.js";
+import { router as AuthRouter } from "./routes/api/auth-router.js";
 // import { router as CocktailRouter } from "./routes/api/cocktail-router.js";
 // import { router as SubscribeRouter } from "./routes/api/subscribe-router.js";
 // import { router as IngredientListRouter } from "./routes/api/ingredientsList-router.js";
@@ -24,7 +24,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
 
-// app.use("/api/auth", AuthRouter);
+app.use("/api/auth", AuthRouter);
 // app.use("/api/recipes", CocktailRouter);
 // app.use("/api/subscribe", SubscribeRouter);
 // app.use("/api/category", CategoryListRouter);
