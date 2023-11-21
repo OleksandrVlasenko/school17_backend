@@ -2,11 +2,11 @@ import express from "express";
 import { authController } from "../../controlers/auth-controller/index.js";
 import {
 	validateBody,
-	// authenticate,
+	authenticate,
 	isEmptyBody,
 } from "../../middlewares/index.js";
 import {
-	// userLoginSchema,
+	userLoginSchema,
 	userRegisterSchema,
 	// userUpdateSchema,
 } from "../../models/index.js";
@@ -20,16 +20,16 @@ router.post(
 	authController.register,
 );
 
-// router.post(
-// 	"/login",
-// 	isEmptyBody,
-// 	validateBody(userLoginSchema),
-// 	authController.login,
-// );
+router.post(
+	"/login",
+	isEmptyBody,
+	validateBody(userLoginSchema),
+	authController.login,
+);
 
-// router.get("/current", authenticate, authController.getCurrentUser);
+router.get("/current", authenticate, authController.getCurrentUser);
 
-// router.post("/signout", authenticate, authController.signOut);
+router.post("/logout", authenticate, authController.logOut);
 
 // router.patch(
 // 	"/update",
