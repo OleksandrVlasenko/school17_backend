@@ -1,27 +1,56 @@
-import { StatutLink } from "../../models/index.js";
-// import { HttpError } from "../../helpers/HttpError.js";
+import fs from "fs/promises";
+
+import { HttpError } from "../../helpers/HttpError.js";
+import { cloudinary } from "../../helpers/index.js";
+import { News } from "../../models/news.js";
 
 const addNews = async (req, res, next) => {
-	console.log("addNews  res:", res)
-	// const result = await StatutLink.find();
+	try {
+		const { _id } = req.user;
+		const { title, description, youtubeURL } = req.body;
+		const { files } = req;
 
-	// let newObj = {};
+		if (!title) {
+			throw HttpError(400, "Поле 'Заголовок' обов'язкове");
+		}
 
-	// if (result.length === 0) {
-	// 	newObj = await StatutLink.create({ ...req.body });
-	// } else {
-	// 	const { _id } = result[0];
-	// 	newObj = await StatutLink.findByIdAndUpdate(
-	// 		_id,
-	// 		{ ...req.body },
-	// 		{ new: true },
-	// 	);
-	// }
+		const newNews = { title };
+		description && (newNews.description = description);
+		youtubeURL && (newNews.youtubeURL = youtubeURL);
+		newNews.owner = _id;
 
-	// res.status(201).json({
-	// 	link: newObj.link,
-  // });
-  res.json(req.body)
+		if (files) {
+			newNews.imagesURL = [];
+
+			const promices = files.map(async file => {
+				const { path } = file;
+
+				const { public_id, secure_url } = await cloudinary.uploader.upload(
+					path,
+					{
+						folder: "imagesOfNews",
+					},
+				);
+				newNews.imagesURL.push({ public_id, url: secure_url });
+			});
+
+			await Promise.all(promices);
+		}
+
+		const result = await News.create(newNews);
+
+		res.status(201).json(result);
+	} catch (error) {
+		next(error);
+	} finally {
+		if (req.files) {
+			const { files } = req;
+
+			await Promise.all(files.map(file => {
+				fs.unlink(file.path);
+			}));
+		}
+	}
 };
 
 export { addNews };

@@ -6,7 +6,6 @@ const destination = path.resolve("temp");
 const storage = multer.diskStorage({
 	destination,
 	filename: (req, file, cb) => {
-		console.log("file:", file);
 
 		const { originalname } = file;
 		const uniquePrefix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;

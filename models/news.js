@@ -13,9 +13,10 @@ const newsSchema = new Schema(
 			type: String,
 			default: "",
 		},
-		imageURL: {
+		imagesURL: {
 			type: [
 				new Schema({
+					public_id: {type: String, required: true},
 					url: { type: String, required: true },
 				}),
 			],
