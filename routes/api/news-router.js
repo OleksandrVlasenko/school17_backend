@@ -10,7 +10,7 @@ import { newsSchemaJoi } from "../../models/index.js";
 
 const router = express.Router();
 
-// router.get("/", statutLinkController.getStatutLink);
+router.get("/", newsController.getAllNews);
 
 router.post(
 	"/",

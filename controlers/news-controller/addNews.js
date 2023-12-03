@@ -2,7 +2,7 @@ import fs from "fs/promises";
 
 import { HttpError } from "../../helpers/HttpError.js";
 import { cloudinary } from "../../helpers/index.js";
-import { News } from "../../models/news.js";
+import { News } from "../../models/index.js";
 
 const addNews = async (req, res, next) => {
 	try {
