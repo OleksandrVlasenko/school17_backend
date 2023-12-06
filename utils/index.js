@@ -1,0 +1,1 @@
+export {getNewsByQuery} from "./getNewsByQuery.js"

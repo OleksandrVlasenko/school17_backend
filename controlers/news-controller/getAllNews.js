@@ -1,25 +1,58 @@
-import { News, User } from "../../models/index.js";
+import { HttpError } from "../../helpers/index.js";
+import { User } from "../../models/index.js";
+import { getNewsByQuery } from "../../utils/index.js";
 
 const getAllNews = async (req, res, next) => {
-	const news = await News.find();
+	try {
+		const { page, limit } = req.query;
+		const { dateFrom, dateTo } = req.body;
 
-	const users = await User.find();
+		const pageNumber = page ? Number(page) : 1;
+		const pageSize = limit ? Number(limit) : 5;
 
-	const usersObj = users.reduce((acc, user) => {
-		acc[user._id] = user.name;
-		return acc;
-	}, {});
+		// var date = new Date("false");
+		// console.log(date instanceof Date && !isNaN(date.valueOf()));
 
-	const newsWithOwnerName = news.map(news => {
-		const plainObject = news.toObject();
-		return {
-			...plainObject,
-			owner: usersObj[news.owner],
-		};
-  });
-  
-	res.json(newsWithOwnerName);
+		if (Number.isNaN(pageNumber) || Number.isNaN(pageSize)) {
+			throw HttpError(400);
+		}
+
+		const filter = {};
+		if (Boolean(dateFrom) !== Boolean(dateTo)) {
+			throw HttpError(400, "Поля 'Від' та 'До' мають бути заповнені");
+		}
+
+		dateFrom &&
+			dateTo &&
+			(filter.createdAt = {
+				$gte: new Date(new Date(dateFrom)),
+				$lte: new Date(new Date(dateTo).setHours(23, 59, 59)),
+			});
+
+		const result = await getNewsByQuery(filter, pageNumber, pageSize);
+
+		if (result.length === 0) {
+			result.push({ news: [], totalNews: 0, totalPages: 0 });
+		} else if (pageNumber > result[0].totalPages) {
+			throw HttpError(400);
+		}
+
+		const users = await User.find();
+
+		const usersObj = users.reduce((acc, user) => {
+			acc[user._id] = user.name;
+			return acc;
+		}, {});
+
+		result[0].news = result[0].news.map(oneNews => ({
+			...oneNews,
+			owner: usersObj[oneNews.owner],
+		}));
+
+		res.json(result[0]);
+	} catch (error) {
+		next(error);
+	}
 };
 
 export { getAllNews };
-
