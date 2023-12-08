@@ -3,9 +3,12 @@ import { User } from "../../models/index.js";
 import { getNewsByQuery } from "../../utils/index.js";
 
 const getAllNews = async (req, res, next) => {
-	try {
-		const { page, limit } = req.query;
-		const { dateFrom, dateTo } = req.body;
+  console.log("getAllNews  req:", req)
+  try {
+    
+		const { page, limit, dateFrom, dateTo } = req.query;
+		console.log("getAllNews  dateTo:", dateTo)
+		console.log("getAllNews  dateFrom:", dateFrom)
 
 		const pageNumber = page ? Number(page) : 1;
 		const pageSize = limit ? Number(limit) : 5;
@@ -17,11 +20,16 @@ const getAllNews = async (req, res, next) => {
 			throw HttpError(400);
 		}
 
-		const filter = {};
+    const filter = {};
+    
 		if (Boolean(dateFrom) !== Boolean(dateTo)) {
 			throw HttpError(400, "Поля 'Від' та 'До' мають бути заповнені");
-		}
-
+    }
+    
+		if (dateFrom > dateTo) {
+			throw HttpError(400, "Некоректно заповнена дата");
+    }
+    
 		dateFrom &&
 			dateTo &&
 			(filter.createdAt = {
